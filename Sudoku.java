@@ -1,6 +1,8 @@
 import java.util.*;
 
 public class Sudoku {
+  public static final int innerLength = 3;
+  public static final int length = (int) (innerLength * innerLength);
   public static ArrayList<ArrayList<Integer>> board = new ArrayList<ArrayList<Integer>>();
 
   public static void main(String[] args) {
@@ -10,8 +12,6 @@ public class Sudoku {
 
   public static void generateBoard() {
     // Prints blank board
-    int length = 9;
-
     for (int rows = 0; rows < length; rows++) {
       // I can't have this out or else they are refer to the same memory
       ArrayList<Integer> newList = new ArrayList<Integer>();
@@ -23,51 +23,59 @@ public class Sudoku {
       board.add(rows, newList);
     }
 
-    // Fill out first row
-    for (int cols = 0; cols < length; cols++) {
-      ArrayList<Integer> firstRow = board.get(0);
+    setBoard(0, 0);
+  }
+
+  public static void setBoard(int row, int col) {
+    if (isBoardComplete())
+      return;
+
+    int nextRow = (col == 8) ? row + 1 : row;
+    int nextCol = (col == 8) ? 0 : col + 1;
+
+    ArrayList<Integer> randNums = new ArrayList<>();
+    while (randNums.size() < length) {
       int randNum = (int) (Math.random() * length) + 1;
-      int[] coords = new int[] { 0, cols };
-      if (!checkNum(coords, randNum)) {
-        firstRow.set(cols, randNum);
-      } else {
-        cols--;
+      if (!randNums.contains(randNum)) {
+        randNums.add(randNum);
       }
     }
 
-    for (int innerRow = 1; innerRow < length; innerRow++) {
-      for (int innerCol = 0; innerCol < length; innerCol++) {
-        boolean validNum = false;
-        ArrayList<Integer> checkedNums = new ArrayList<Integer>(length);
-        while (!validNum) {
-          if (checkedNums.size() == length) {
-            break;
-          }
-          
-          int randNum = (int) (Math.random() * length) + 1;
-          if (checkedNums.contains(randNum))
-            continue;
-          int[] coords = new int[] { innerRow, innerCol };
-          if (!checkNum(coords, randNum)) {
-            board.get(innerRow).set(innerCol, randNum);
-            validNum = true;
-          } else {
-            checkedNums.add(randNum);
-          }
-        }
+    for (int num : randNums) {
+      int[] coords = new int[] { row, col };
+
+      if (!checkNum(coords, num)) {
+        board.get(row).set(col, num);
+
+        setBoard(nextRow, nextCol);
+
+        if (isBoardComplete())
+          return;
+
+        board.get(row).set(col, -1);
       }
     }
+  }
+
+  public static boolean isBoardComplete() {
+    for (ArrayList<Integer> rows : board) {
+      for (int cols : rows) {
+        if (cols == -1)
+          return false;
+      }
+    }
+
+    return true;
   }
 
   // Checks if the same number is in range (false is good)
   public static boolean checkNum(int[] pos, int num) {
     // Checks by box
-    int length = 3;
-    int topRow = pos[0] - pos[0] % length;
-    int topCol = pos[1] - pos[1] % length;
-    for (int innerRow = topRow; innerRow < topRow + length; innerRow++) {
+    int topRow = pos[0] - pos[0] % innerLength;
+    int topCol = pos[1] - pos[1] % innerLength;
+    for (int innerRow = topRow; innerRow < topRow + innerLength; innerRow++) {
       ArrayList<Integer> currRow = board.get(innerRow);
-      for (int innerCol = topCol; innerCol < topCol + length; innerCol++) {
+      for (int innerCol = topCol; innerCol < topCol + innerLength; innerCol++) {
         if (currRow.get(innerCol) == num)
           return true;
       }
