@@ -26,12 +26,35 @@ public class Sudoku {
     // Fill out first row
     for (int cols = 0; cols < length; cols++) {
       ArrayList<Integer> firstRow = board.get(0);
-      int randNum = (int) (Math.random() * length);
+      int randNum = (int) (Math.random() * length) + 1;
       int[] coords = new int[] { 0, cols };
       if (!checkNum(coords, randNum)) {
         firstRow.set(cols, randNum);
       } else {
         cols--;
+      }
+    }
+
+    for (int innerRow = 1; innerRow < length; innerRow++) {
+      for (int innerCol = 0; innerCol < length; innerCol++) {
+        boolean validNum = false;
+        ArrayList<Integer> checkedNums = new ArrayList<Integer>(length);
+        while (!validNum) {
+          if (checkedNums.size() == length) {
+            break;
+          }
+          
+          int randNum = (int) (Math.random() * length) + 1;
+          if (checkedNums.contains(randNum))
+            continue;
+          int[] coords = new int[] { innerRow, innerCol };
+          if (!checkNum(coords, randNum)) {
+            board.get(innerRow).set(innerCol, randNum);
+            validNum = true;
+          } else {
+            checkedNums.add(randNum);
+          }
+        }
       }
     }
   }
@@ -50,10 +73,14 @@ public class Sudoku {
       }
     }
 
+    // row
     if (board.get(pos[0]).contains(num))
       return true;
-    if (board.get(pos[1]).contains(num))
-      return true;
+    // col
+    for (int innerRow = 0; innerRow < board.size(); innerRow++) {
+      if (board.get(innerRow).get(pos[1]) == num)
+        return true;
+    }
 
     return false;
   }
