@@ -19,13 +19,13 @@ public class Sudoku {
       mode = sc.next().toUpperCase().charAt(0);
       switch (mode) {
         case 'E':
-          setDifficulty(1);
+          setDifficulty(1, 4);
           break;
         case 'M':
-          setDifficulty(5);
+          setDifficulty(4, 6);
           break;
         case 'H':
-          setDifficulty(7);
+          setDifficulty(5, 7);
           break;
         default:
           System.out.println("Please enter 'E', 'M', 'H' for your diffculty!");
@@ -83,6 +83,7 @@ public class Sudoku {
     }
   }
 
+  // I have to get rid of the color strings
   public static int cleanNum(String num) {
     return Integer.parseInt(num.replace(redColor, "").replace(blueColor, "").replace(defaultColor, ""));
   }
@@ -91,8 +92,10 @@ public class Sudoku {
     return cleanNum(board.get(row).get(col));
   }
 
-  public static void setDifficulty(int removal) {
+  // Removes numbers based on a range
+  public static void setDifficulty(int min, int max) {
     for (int row = 0; row < length; row++) {
+      int removal = (int)(Math.random() * (max - min)) + min;
       int i = 0;
       while (removal > i) {
         int randCol = (int) (Math.random() * length);
