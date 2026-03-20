@@ -4,7 +4,10 @@ public class Sudoku {
   public static Scanner sc = new Scanner(System.in);
   public static final int innerLength = 3;
   public static final int length = (int) (innerLength * innerLength);
-  public static ArrayList<ArrayList<Integer>> board = new ArrayList<ArrayList<Integer>>();
+  public static ArrayList<ArrayList<String>> board = new ArrayList<ArrayList<String>>();
+  public static final String redColor = "\u001B[31m";
+  public static final String blueColor = "\u001B[34m";
+  public static final String defaultColor = "\u001B[0m";
 
   public static void main(String[] args) {
     generateBoard();
@@ -34,50 +37,25 @@ public class Sudoku {
     while (!isBoardComplete()) {
       printBoard();
 
-      int row, col, num = 0;
-      while (true) {
-        System.out.print("Enter a row between 1 to " + length + ": ");
-        int curr = sc.nextInt();
-        if (length >= curr && curr > 0) {
-          row = curr - 1;
-          break;
-        }
-        System.out.println("Please enter a valid row between 1 to " + length);
-      }
+      int row = getValues("Enter a row between 1 to " + length + ": ", false);
+      int col = getValues("Enter a col between 1 to " + length + ": ", false);
 
-      while (true) {
-        System.out.print("Enter a column between 1 to " + length + ": ");
-        int curr = sc.nextInt();
-        if (length >= curr && curr > 0) {
-          col = curr - 1;
-          break;
-        }
-        System.out.println("Please enter a valid column between 1 to " + length);
-      }
-
-      if (board.get(row).get(col) != 0) {
+      if (getNum(row, col) != 0) {
         System.out.println("‼️ That position is already filled!");
         continue;
       }
 
-      while (true) {
-        System.out.print("Enter a number between 1 to " + length + ": ");
-        int curr = sc.nextInt();
-        if (length >= curr && curr > 0) {
-          num = curr;
-          break;
-        }
-        System.out.println("Please enter a valid number between 1 to " + length);
-      }
+      int num = getValues("Enter a number between 1 to " + length + ": ", true);
 
       if (checkNum(new int[] { row, col }, num)) {
         System.out.println("‼️ That position is invalid!");
         continue;
       }
 
-      board.get(row).set(col, num);
+      board.get(row).set(col, blueColor + String.valueOf(num) + defaultColor);
       System.out.println("✅ Placed your number!");
     }
+    printBoard();
 
     System.out.println("🎉 You solved the sudoku!");
     long end = System.currentTimeMillis();
@@ -86,13 +64,40 @@ public class Sudoku {
     System.out.println("Time taken: " + (elaspedSeconds / 60) + "m " + (elaspedSeconds % 60) + "s");
   }
 
+  public static int getValues(String msg, boolean ifAdjust) {
+    int curr = -1;
+    while (true) {
+      System.out.print(msg);
+      try {
+        curr = sc.nextInt();
+      } catch (Exception e) {
+        System.out.println("Use numbers!");
+        sc.nextLine();
+        continue;
+      }
+
+      if (length >= curr && curr > 0) {
+        return ifAdjust ? curr : curr - 1;
+      }
+      System.out.println("Please enter a valid number between 1 to " + length);
+    }
+  }
+
+  public static int cleanNum(String num) {
+    return Integer.parseInt(num.replace(redColor, "").replace(blueColor, "").replace(defaultColor, ""));
+  }
+
+  public static int getNum(int row, int col) {
+    return cleanNum(board.get(row).get(col));
+  }
+
   public static void setDifficulty(int removal) {
     for (int row = 0; row < length; row++) {
       int i = 0;
       while (removal > i) {
         int randCol = (int) (Math.random() * length);
-        if (board.get(row).get(randCol) != 0) {
-          board.get(row).set(randCol, 0);
+        if (getNum(row, randCol) != 0) {
+          board.get(row).set(randCol, redColor + "0" + defaultColor);
           i++;
         }
       }
@@ -103,10 +108,10 @@ public class Sudoku {
     // Prints blank board
     for (int rows = 0; rows < length; rows++) {
       // I can't have this out or else they are refer to the same memory
-      ArrayList<Integer> newList = new ArrayList<Integer>();
+      ArrayList<String> newList = new ArrayList<String>();
 
       for (int cols = 0; cols < length; cols++) {
-        newList.add(cols, 0);
+        newList.add(cols, "0");
       }
 
       board.add(rows, newList);
@@ -119,10 +124,10 @@ public class Sudoku {
     if (isBoardComplete())
       return;
 
-    int nextRow = (col == 8) ? row + 1 : row;
-    int nextCol = (col == 8) ? 0 : col + 1;
+    int nextRow = (col == length - 1) ? row + 1 : row;
+    int nextCol = (col == length - 1) ? 0 : col + 1;
 
-    ArrayList<Integer> randNums = new ArrayList<>();
+    ArrayList<Integer> randNums = new ArrayList<Integer>();
     while (randNums.size() < length) {
       int randNum = (int) (Math.random() * length) + 1;
       if (!randNums.contains(randNum)) {
@@ -134,24 +139,25 @@ public class Sudoku {
       int[] coords = new int[] { row, col };
 
       if (!checkNum(coords, num)) {
-        board.get(row).set(col, num);
+        board.get(row).set(col, num + "");
 
         setBoard(nextRow, nextCol);
 
         if (isBoardComplete())
           return;
 
-        board.get(row).set(col, 0);
+        board.get(row).set(col, "0");
       }
     }
 
   }
 
   public static boolean isBoardComplete() {
-    for (ArrayList<Integer> rows : board) {
-      for (int cols : rows) {
-        if (cols == 0)
+    for (ArrayList<String> rows : board) {
+      for (String col : rows) {
+        if (cleanNum(col) == 0) {
           return false;
+        }
       }
     }
 
@@ -164,19 +170,22 @@ public class Sudoku {
     int topRow = pos[0] - pos[0] % innerLength;
     int topCol = pos[1] - pos[1] % innerLength;
     for (int innerRow = topRow; innerRow < topRow + innerLength; innerRow++) {
-      ArrayList<Integer> currRow = board.get(innerRow);
+      ArrayList<String> currRow = board.get(innerRow);
       for (int innerCol = topCol; innerCol < topCol + innerLength; innerCol++) {
-        if (currRow.get(innerCol) == num)
+        if (cleanNum(currRow.get(innerCol)) == num)
           return true;
       }
     }
 
     // row
-    if (board.get(pos[0]).contains(num))
-      return true;
+    ArrayList<String> currRow = board.get(pos[0]);
+    for (String col : currRow) {
+      if (cleanNum(col) == num)
+        return true;
+    }
     // col
     for (int innerRow = 0; innerRow < board.size(); innerRow++) {
-      if (board.get(innerRow).get(pos[1]) == num)
+      if (getNum(innerRow, pos[1]) == num)
         return true;
     }
 
@@ -199,7 +208,9 @@ public class Sudoku {
         // Numbers in sections of 3
         String threeCols = "";
         for (int innerCol = 0; innerCol < 3; innerCol++) {
-          threeCols += board.get(currRow).get(currCol) + " ";
+          String curr = board.get(currRow).get(currCol);
+          threeCols += curr + " ";
+
           currCol++;
         }
         System.out.print(String.format("%3s", threeCols));
