@@ -16,7 +16,7 @@ public class Sudoku {
       mode = sc.next().toUpperCase().charAt(0);
       switch (mode) {
         case 'E':
-          setDifficulty(3);
+          setDifficulty(1);
           break;
         case 'M':
           setDifficulty(5);
@@ -30,6 +30,7 @@ public class Sudoku {
       }
     }
 
+    long start = System.currentTimeMillis();
     while (!isBoardComplete()) {
       printBoard();
 
@@ -69,10 +70,8 @@ public class Sudoku {
         System.out.println("Please enter a valid number between 1 to " + length);
       }
 
-      System.out.println(row + " " + col + " " + num);
-
       if (checkNum(new int[] { row, col }, num)) {
-        System.out.println("‼️ That position is already invalid!");
+        System.out.println("‼️ That position is invalid!");
         continue;
       }
 
@@ -81,7 +80,10 @@ public class Sudoku {
     }
 
     System.out.println("🎉 You solved the sudoku!");
+    long end = System.currentTimeMillis();
+    long elaspedSeconds = (end - start) / 1000;
 
+    System.out.println("Time taken: " + (elaspedSeconds / 60) + "m " + (elaspedSeconds % 60) + "s");
   }
 
   public static void setDifficulty(int removal) {
