@@ -1,13 +1,100 @@
 import java.util.*;
 
 public class Sudoku {
+  public static Scanner sc = new Scanner(System.in);
   public static final int innerLength = 3;
   public static final int length = (int) (innerLength * innerLength);
   public static ArrayList<ArrayList<Integer>> board = new ArrayList<ArrayList<Integer>>();
 
   public static void main(String[] args) {
     generateBoard();
-    printBoard();
+
+    System.out.println("Welcome to Sudoku!");
+    char mode = 'A';
+    while (mode != 'E' && mode != 'M' && mode != 'H') {
+      System.out.println("What mode do you want to play? ('E' -> Easy, 'M' -> Medium, 'H' -> Hard)");
+      mode = sc.next().toUpperCase().charAt(0);
+      switch (mode) {
+        case 'E':
+          setDifficulty(3);
+          break;
+        case 'M':
+          setDifficulty(5);
+          break;
+        case 'H':
+          setDifficulty(7);
+          break;
+        default:
+          System.out.println("Please enter 'E', 'M', 'H' for your diffculty!");
+          break;
+      }
+    }
+
+    while (!isBoardComplete()) {
+      printBoard();
+
+      int row, col, num = 0;
+      while (true) {
+        System.out.print("Enter a row between 1 to " + length + ": ");
+        int curr = sc.nextInt();
+        if (length >= curr && curr > 0) {
+          row = curr - 1;
+          break;
+        }
+        System.out.println("Please enter a valid row between 1 to " + length);
+      }
+
+      while (true) {
+        System.out.print("Enter a column between 1 to " + length + ": ");
+        int curr = sc.nextInt();
+        if (length >= curr && curr > 0) {
+          col = curr - 1;
+          break;
+        }
+        System.out.println("Please enter a valid column between 1 to " + length);
+      }
+
+      if (board.get(row).get(col) != 0) {
+        System.out.println("‼️ That position is already filled!");
+        continue;
+      }
+
+      while (true) {
+        System.out.print("Enter a number between 1 to " + length + ": ");
+        int curr = sc.nextInt();
+        if (length >= curr && curr > 0) {
+          num = curr;
+          break;
+        }
+        System.out.println("Please enter a valid number between 1 to " + length);
+      }
+
+      System.out.println(row + " " + col + " " + num);
+
+      if (checkNum(new int[] { row, col }, num)) {
+        System.out.println("‼️ That position is already invalid!");
+        continue;
+      }
+
+      board.get(row).set(col, num);
+      System.out.println("✅ Placed your number!");
+    }
+
+    System.out.println("🎉 You solved the sudoku!");
+
+  }
+
+  public static void setDifficulty(int removal) {
+    for (int row = 0; row < length; row++) {
+      int i = 0;
+      while (removal > i) {
+        int randCol = (int) (Math.random() * length);
+        if (board.get(row).get(randCol) != 0) {
+          board.get(row).set(randCol, 0);
+          i++;
+        }
+      }
+    }
   }
 
   public static void generateBoard() {
@@ -17,7 +104,7 @@ public class Sudoku {
       ArrayList<Integer> newList = new ArrayList<Integer>();
 
       for (int cols = 0; cols < length; cols++) {
-        newList.add(cols, -1);
+        newList.add(cols, 0);
       }
 
       board.add(rows, newList);
@@ -52,15 +139,16 @@ public class Sudoku {
         if (isBoardComplete())
           return;
 
-        board.get(row).set(col, -1);
+        board.get(row).set(col, 0);
       }
     }
+
   }
 
   public static boolean isBoardComplete() {
     for (ArrayList<Integer> rows : board) {
       for (int cols : rows) {
-        if (cols == -1)
+        if (cols == 0)
           return false;
       }
     }
