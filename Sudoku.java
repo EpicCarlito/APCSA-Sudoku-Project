@@ -2,12 +2,16 @@ import java.util.*;
 
 public class Sudoku {
   public static Scanner sc = new Scanner(System.in);
-  public static final int innerLength = 3;
-  public static final int length = (int) (innerLength * innerLength);
+  public static int innerLength, length;
   public static ArrayList<ArrayList<String>> board = new ArrayList<ArrayList<String>>();
   public static final String redColor = "\u001B[31m";
   public static final String blueColor = "\u001B[34m";
   public static final String defaultColor = "\u001B[0m";
+
+  public Sudoku(int size) {
+    innerLength = size;
+    length = (int) (innerLength * innerLength);
+  }
 
   public static void main(String[] args) {
     generateBoard();
@@ -19,10 +23,10 @@ public class Sudoku {
       mode = sc.next().toUpperCase().charAt(0);
       switch (mode) {
         case 'E':
-          setDifficulty(1, 4);
+          setDifficulty(2, 3);
           break;
         case 'M':
-          setDifficulty(4, 6);
+          setDifficulty(3, 4);
           break;
         case 'H':
           setDifficulty(5, 7);
