@@ -1,14 +1,27 @@
+package com.example;
+
 import java.util.*;
 
 public class Sudoku {
+  public static int innerLength, length;
+  public static String[][] board;
+
   public static Scanner sc = new Scanner(System.in);
-  public static int innerLength = 3, length = (int) (innerLength * innerLength);
-  public static String[][] board = new String[length][length];
   public static final String redColor = "\u001B[31m";
   public static final String blueColor = "\u001B[34m";
   public static final String defaultColor = "\u001B[0m";
 
+  public Sudoku(int smLength) {
+    innerLength = smLength;
+    length = innerLength * innerLength;
+    board = new String[length][length];
+    setBoard(0, 0);
+  }
+
   public static void main(String[] args) {
+    innerLength = 3;
+    length = innerLength * innerLength;
+    board = new String[length][length];
     setBoard(0, 0);
 
     System.out.println("Welcome to Sudoku!");
@@ -111,6 +124,20 @@ public class Sudoku {
     }
   }
 
+  public void setDiff(int min, int max) {
+    for (int row = 0; row < length; row++) {
+      int removal = (int) (Math.random() * (max - min)) + min;
+      int i = 0;
+      while (removal > i) {
+        int randCol = (int) (Math.random() * length);
+        if (getNum(row, randCol) != 0) {
+          board[row][randCol] = redColor + "0" + defaultColor;
+          i++;
+        }
+      }
+    }
+  }
+
   public static void setBoard(int row, int col) {
     if (isBoardComplete())
       return;
@@ -144,6 +171,18 @@ public class Sudoku {
   }
 
   public static boolean isBoardComplete() {
+    for (String[] rows : board) {
+      for (String col : rows) {
+        if (cleanNum(col) == 0) {
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  public boolean boardCompleted() {
     for (String[] rows : board) {
       for (String col : rows) {
         if (cleanNum(col) == 0) {
@@ -212,5 +251,13 @@ public class Sudoku {
       currRow++;
       currCol = 0;
     }
+  }
+
+  public void setBoard(String[][] newBoard) {
+    board = newBoard;
+  }
+
+  public String[][] getBoard() {
+    return board;
   }
 }
