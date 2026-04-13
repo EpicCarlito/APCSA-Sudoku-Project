@@ -5,6 +5,7 @@ import java.util.*;
 public class Sudoku {
   public static int innerLength, length;
   public static String[][] board;
+  public static String[][] finalBoard;
 
   public static Scanner sc = new Scanner(System.in);
   public static final String redColor = "\u001B[31m";
@@ -15,6 +16,7 @@ public class Sudoku {
     innerLength = smLength;
     length = innerLength * innerLength;
     board = new String[length][length];
+    finalBoard = new String[length][length];
     genBoard(0, 0);
   }
 
@@ -22,17 +24,19 @@ public class Sudoku {
     innerLength = 3;
     length = innerLength * innerLength;
     board = new String[length][length];
+    finalBoard = new String[length][length];
     genBoard(0, 0);
 
     System.out.println("Welcome to Sudoku!");
 
     char mode = 'A';
-    while (mode != 'E' && mode != 'M' && mode != 'H') {
-      System.out.println("What mode do you want to play? ('E' -> Easy, 'M' -> Medium, 'H' -> Hard)");
+    while (mode != 'E' && mode != 'M' && mode != 'H' && mode != 'G') {
+      System.out.println(
+          "What mode do you want to play? ('E' -> Easy, 'M' -> Medium, 'H' -> Hard / 'G' -> Generates a valid board)");
       mode = sc.next().toUpperCase().charAt(0);
       switch (mode) {
         case 'E':
-          setDifficulty(1, 1);
+          setDifficulty(1, 3);
           break;
         case 'M':
           setDifficulty(3, 4);
@@ -40,8 +44,11 @@ public class Sudoku {
         case 'H':
           setDifficulty(5, 7);
           break;
+        case 'G':
+          printBoard();
+          return;
         default:
-          System.out.println("Please enter 'E', 'M', 'H' for your diffculty!");
+          System.out.println("Please enter 'E', 'M', 'H' for your diffculty or 'G' for a board!");
           break;
       }
     }
@@ -60,8 +67,8 @@ public class Sudoku {
 
       int num = getValues("Enter a number between 1 to " + length + ": ", true);
 
-      if (checkNum(num, row, col)) {
-        System.out.println("‼️ That position is invalid!");
+      if (cleanNum(finalBoard[row][col]) != num) {
+        System.out.println("‼️ That number is invalid!");
         continue;
       }
 
@@ -158,6 +165,7 @@ public class Sudoku {
     for (int num : randNums) {
       if (!checkNum(num, row, col)) {
         board[row][col] = num + "";
+        finalBoard[row][col] = num + "";
 
         genBoard(nextRow, nextCol);
 
@@ -165,6 +173,7 @@ public class Sudoku {
           return;
 
         board[row][col] = "0";
+        finalBoard[row][col] = "0";
       }
     }
   }
@@ -258,5 +267,9 @@ public class Sudoku {
 
   public String[][] getBoard() {
     return board;
+  }
+  
+  public String[][] getFinalBoard() {
+    return finalBoard;
   }
 }

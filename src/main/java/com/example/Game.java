@@ -1,12 +1,12 @@
 package com.example;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 public class Game {
     @FXML
@@ -18,6 +18,7 @@ public class Game {
 
     @FXML
     public void initialize(Sudoku gameLogic) {
+        long start = System.currentTimeMillis();
         this.gameLogic = gameLogic;
         int currRow = 0;
 
@@ -65,7 +66,7 @@ public class Game {
 
                         int num = Integer.parseInt(newValue);
 
-                        if (Sudoku.checkNum(num, CR, CC)) {
+                        if (Sudoku.cleanNum(gameLogic.getFinalBoard()[CR][CC]) != num) {
                             cell.setStyle("-fx-text-fill: red;");
                             return;
                         }
@@ -75,9 +76,14 @@ public class Game {
                         gameLogic.setBoard(newBoard);
                         cell.setEditable(false);
                         cell.setStyle("-fx-text-fill: blue;");
+
                         if (gameLogic.boardCompleted()) {
-                            Label winLabel = new Label("🎉 Sudoku Complete!");
-                            root.getChildren().add(winLabel);
+                            long end = System.currentTimeMillis();
+                            long elaspedSeconds = (end - start) / 1000;
+                            Text winMessage = new Text("🎉 Sudoku Complete!");
+                            Text timeMessage = new Text("Time taken: " + (elaspedSeconds / 60) + "m " + (elaspedSeconds % 60) + "s");
+                            root.getChildren().add(winMessage);
+                            root.getChildren().add(timeMessage);
                         }
                     });
                 }
