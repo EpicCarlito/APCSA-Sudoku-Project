@@ -15,14 +15,14 @@ public class Sudoku {
     innerLength = smLength;
     length = innerLength * innerLength;
     board = new String[length][length];
-    setBoard(0, 0);
+    genBoard(0, 0);
   }
 
   public static void main(String[] args) {
     innerLength = 3;
     length = innerLength * innerLength;
     board = new String[length][length];
-    setBoard(0, 0);
+    genBoard(0, 0);
 
     System.out.println("Welcome to Sudoku!");
 
@@ -138,7 +138,7 @@ public class Sudoku {
     }
   }
 
-  public static void setBoard(int row, int col) {
+  public static void genBoard(int row, int col) {
     if (isBoardComplete())
       return;
 
@@ -159,7 +159,7 @@ public class Sudoku {
       if (!checkNum(num, row, col)) {
         board[row][col] = num + "";
 
-        setBoard(nextRow, nextCol);
+        genBoard(nextRow, nextCol);
 
         if (isBoardComplete())
           return;
@@ -167,7 +167,6 @@ public class Sudoku {
         board[row][col] = "0";
       }
     }
-
   }
 
   public static boolean isBoardComplete() {
