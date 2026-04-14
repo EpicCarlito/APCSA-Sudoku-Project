@@ -1,3 +1,6 @@
 .DS_Store
 target/
 .vscode
+.idea
+MANIFEST.MF
+out/
